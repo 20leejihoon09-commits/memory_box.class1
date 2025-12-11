@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>추억의 상자 - 1반</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    .app-shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+    @media (max-width: 900px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+    }
+
+    /* 사이드바 */
+    .sidebar {
+      background: radial-gradient(circle at top, #0f172a, #020617);
+      color: #e5e7eb;
+      padding: 20px;
+      border-right: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+    .logo-sub {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 20px;
+    }
+    .nav-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #6b7280;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: transparent;
+      color: #e5e7eb;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.08s;
+    }
+    .nav-btn span.icon {
+      font-size: 16px;
+    }
+    .nav-btn.active,
+    .nav-btn:hover {
+      background: rgba(59, 130, 246, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .stat-card {
+      margin-top: 20px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: radial-gradient(circle at top left, #1d283a, #020617);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      font-size: 12px;
+    }
+    .stat-label {
+      color: #9ca3af;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    /* 메인 영역 */
+    .main {
+      padding: 18px 18px 40px 18px;
+      background: radial-gradient(circle at top left, #111827, #020617);
+    }
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 10px;
+    }
+    .top-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .top-sub {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.14);
+      color: #bfdbfe;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #e5e7eb;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #e5e7eb;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5);
+      transition: transform 0.1s, box-shadow 0.1s, filter 0.1s;
+      white-space: nowrap;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.7);
+    }
+    .btn.secondary {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: none;
+    }
+    .btn.danger {
+      background: linear-gradient(135deg, #ef4444, #f97373);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5);
+    }
+
+    .panel {
+      border-radius: 18px;
+      padding: 18px 18px 18px 18px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.9);
+      margin-bottom: 16px;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .panel-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .panel-sub {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    /* 참여자 폼 */
+    .question-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 10px;
+    }
+    .question-card {
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: radial-gradient(circle at top left, #020617, #0b1120);
+      border: 1px solid rgba(75, 85, 99, 0.6);
+      font-size: 13px;
+    }
+    .question-label {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .rank-label {
+      font-size: 11px;
+      color: #9ca3af;
+      margin: 2px 0;
+    }
+    .input {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      font-size: 13px;
+      outline: none;
+    }
+    .input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.6);
+    }
+
+    /* 관리자 화면 */
+    .admin-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 900px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .admin-controls {
+      border-radius: 14px;
+      padding: 12px;
+      background: radial-gradient(circle at top left, #020617, #020617);
+      border: 1px solid rgba(55, 65, 81, 0.8);
+    }
+
+    .field-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+    select {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      font-size: 13px;
+      outline: none;
+    }
+    select:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.6);
+    }
+
+    .result-box {
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: radial-gradient(circle at top, #020617, #020617);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      font-size: 13px;
+      white-space: pre-wrap;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    .result-line-top {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .pill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: #9ca3af;
+    }
+    .highlight {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    /* 관리자 로그인 */
+    .login-wrapper {
+      max-width: 340px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- 사이드바 -->
+  <aside class="sidebar">
+    <div>
+      <div class="logo">추억의 상자</div>
+      <div class="logo-sub">1반 · 친구 기억 저장소</div>
+
+      <div class="nav-section-title">모드 선택</div>
+      <button class="nav-btn active" id="nav-participant" onclick="switchView('participant')">
+        <span class="icon">🧑‍🎓</span> 참여자 모드
+      </button>
+      <button class="nav-btn" id="nav-admin" onclick="switchView('adminLogin')">
+        <span class="icon">🧑‍🏫</span> 관리자 모드
+      </button>
+
+      <div class="nav-section-title">현재 상태</div>
+      <div class="stat-card">
+        <div class="stat-label">총 제출 인원</div>
+        <div class="stat-value"><span id="totalVotes">0</span> 명</div>
+        <div class="stat-label" style="margin-top:6px;">데이터베이스</div>
+        <div style="font-size:11px; color:#9ca3af;">
+          memorybox1-5038d<br/>
+          <span style="color:#60a5fa;">Realtime Database</span> 연결
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 메인 -->
+  <main class="main">
+
+    <!-- 상단 바 -->
+    <div class="top-bar">
+      <div>
+        <div class="top-title">1반 · 추억의 상자</div>
+        <div class="top-sub">
+          오늘의 우리 반을, 나중에는 <span class="highlight">추억</span>으로 꺼내볼 수 있게.
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span class="badge">
+          <span>🗳</span> TOP2 투표 · 10문항
+        </span>
+        <span class="pill">
+          이름 정규화 적용 (지훈 = 이지훈)
+        </span>
+      </div>
+    </div>
+
+    <!-- 참여자 화면 -->
+    <section id="view-participant" class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">참여자 모드</div>
+          <div class="panel-sub">
+            각 문항마다 1위(2점), 2위(1점)을 기억나는 친구 이름으로 적어주세요.
+          </div>
+        </div>
+        <button class="btn secondary" onclick="resetParticipantForm()">
+          초기화
+        </button>
+      </div>
+
+      <div class="panel" style="margin:0 0 12px 0; padding:10px 12px; background:rgba(15,23,42,0.9);">
+        <div style="font-size:12px; color:#9ca3af;">
+          • 이름은 <span class="highlight">반에서 통일된 방식</span>으로 적어주세요. (예: "홍길동")<br/>
+          • 같은 친구를 1위/2위 둘 다 적으면, <span class="highlight">1위만 인정</span>됩니다.<br/>
+          • 제출 후에는 다시 수정할 수 없으니, 한 번 더 확인하고 제출해주세요.
+        </div>
+      </div>
+
+      <div id="questions" class="question-grid"></div>
+
+      <div style="margin-top:14px; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+        <button class="btn" onclick="submitVotes()">제출하기</button>
+      </div>
+    </section>
+
+    <!-- 관리자 로그인 -->
+    <section id="view-adminLogin" class="panel" style="display:none;">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">관리자 로그인</div>
+          <div class="panel-sub">
+            담임선생님 및 관리자 전용 영역입니다.
+          </div>
+        </div>
+      </div>
+      <div class="login-wrapper">
+        <label class="field-label">관리자 비밀번호</label>
+        <input
+          id="adminPW"
+          class="input"
+          type="password"
+          placeholder="비밀번호를 입력하세요."
+        />
+        <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn" onclick="checkAdmin()">로그인</button>
+          <button class="btn secondary" onclick="switchView('participant')">참여자 모드로 돌아가기</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 관리자 패널 -->
+    <section id="view-adminPanel" class="panel" style="display:none;">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">관리자 대시보드 · 1반</div>
+          <div class="panel-sub">
+            Realtime Database에 저장된 1반 전체 응답을 기반으로 통계를 계산합니다.
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn secondary" onclick="refreshData()">데이터 새로고침</button>
+          <button class="btn danger" onclick="resetAll()">데이터 초기화</button>
+        </div>
+      </div>
+
+      <div class="admin-layout">
+        <div class="admin-controls">
+          <div style="margin-bottom:10px;">
+            <div class="field-label">현재 총 제출 인원</div>
+            <div style="font-size:22px; font-weight:700;">
+              <span id="totalVotesAdmin">0</span> 명
+            </div>
+          </div>
+
+          <div style="margin-bottom:12px;">
+            <div class="field-label">질문 선택</div>
+            <select id="graphSelect"></select>
+          </div>
+
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <button class="btn secondary" onclick="showQuestionResult()">선택한 질문 결과</button>
+            <button class="btn secondary" onclick="showTotal()">전체 합산 순위</button>
+          </div>
+
+          <div style="margin-top:12px; font-size:11px; color:#9ca3af;">
+            <div class="pill-tag">
+              <span>ℹ</span> 이름은 끝 두 글자 기준 정규화됨 (예: 이지훈 → 지훈)
+            </div>
+          </div>
+        </div>
+
+        <div class="result-box" id="resultBox">
+결과가 여기 표시됩니다.
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Firebase SDK v8 (글로벌) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+  // 1반 전용 Firebase 설정
+  const firebaseConfig = {
+    apiKey: "AIzaSyA1pxgogV8t4HzZaIWrGUfwMXNTS5m31iI",
+    authDomain: "memorybox1-5038d.firebaseapp.com",
+    databaseURL: "https://memorybox1-5038d-default-rtdb.firebaseio.com",
+    projectId: "memorybox1-5038d",
+    storageBucket: "memorybox1-5038d.firebasestorage.app",
+    messagingSenderId: "152781142952",
+    appId: "1:152781142952:web:4d97750375194a3a813b9d",
+    measurementId: "G-Y1DDC4ETSM"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
+<script>
+  // ===== 공통 설정 =====
+  const QUESTIONS = [
+    "청소를 열심히 하던 친구",
+    "도움이 필요할 때 기댈 수 있었던 친구",
+    "학교 행사, 일정 등 전달 사항을 잘 공지해주던 친구",
+    "수업 분위기 조성을 잘 맞춰주던 친구",
+    "힘들 때 웃을 수 있게 해주던 친구",
+    "학교 행사에 열심히 참여하던 친구",
+    "리더십, 카리스마가 넘치던 친구",
+    "봉사활동을 열심히 하던 친구",
+    "사소한 일에도 약속을 잘 지키던 친구",
+    "바른언어, 바른 행동 등 품성이 아름답던 친구"
+  ];
+
+  const ADMIN_PASSWORD = "rhkrrhkdalstjstodslatkfkdgkqslek";
+
+  const KEY_CLIENT = "memoryBox1_clientId_v1";
+  const KEY_SUBMITTED = "memoryBox1_submitted_v1";
+
+  let cachedSubmissions = {}; // Firebase에서 읽어온 전체 응답
+
+  // ===== 클라이언트 ID (기기 고유 ID) =====
+  function getClientId() {
+    let id = localStorage.getItem(KEY_CLIENT);
+    if (!id) {
+      id = "client_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem(KEY_CLIENT, id);
+    }
+    return id;
+  }
+
+  // ===== 화면 전환 =====
+  function switchView(view) {
+    document.getElementById("view-participant").style.display = (view === "participant") ? "block" : "none";
+    document.getElementById("view-adminLogin").style.display = (view === "adminLogin") ? "block" : "none";
+    document.getElementById("view-adminPanel").style.display = (view === "adminPanel") ? "block" : "none";
+
+    document.getElementById("nav-participant").classList.toggle("active", view === "participant");
+    document.getElementById("nav-admin").classList.toggle("active", view !== "participant");
+  }
+
+  // ===== 참여자 폼 구성 =====
+  function buildQuestionForm() {
+    const box = document.getElementById("questions");
+    box.innerHTML = "";
+
+    QUESTIONS.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.className = "question-card";
+      div.innerHTML = `
+        <div class="question-label">${i + 1}. ${q}</div>
+        <div class="rank-label">1위 (2점)</div>
+        <input id="q${i}_1" class="input" placeholder="예: 홍길동" />
+        <div class="rank-label">2위 (1점)</div>
+        <input id="q${i}_2" class="input" placeholder="예: 홍길동" />
+      `;
+      box.appendChild(div);
+    });
+  }
+
+  function resetParticipantForm() {
+    buildQuestionForm();
+  }
+
+  // 이름 정규화: 공백 제거 + 호칭 제거 + 끝 두 글자 사용
+  function normalizeName(name) {
+    if (!name) return "";
+    name = name.trim();
+    name = name.replace(/\s+/g, "");
+    name = name.replace(/(이|야|님|군|양|씨|요)$/g, "");
+    if (name.length >= 2) {
+      name = name.slice(-2);
+    }
+    return name;
+  }
+
+  // ===== 참여자 제출 =====
+  function submitVotes() {
+    if (localStorage.getItem(KEY_SUBMITTED) === "yes") {
+      alert("이미 이 기기에서 제출한 기록이 있습니다.");
+      return;
+    }
+
+    const clientId = getClientId();
+    const submission = {};
+
+    QUESTIONS.forEach((_, qi) => {
+      const rawFirst = document.getElementById(`q${qi}_1`).value;
+      const rawSecond = document.getElementById(`q${qi}_2`).value;
+
+      let first = normalizeName(rawFirst);
+      let second = normalizeName(rawSecond);
+
+      if (!submission[qi]) submission[qi] = {};
+
+      if (first && second && first === second) {
+        second = "";
+      }
+
+      if (first) {
+        if (!submission[qi][first]) submission[qi][first] = 0;
+        submission[qi][first] += 2;
+      }
+      if (second) {
+        if (!submission[qi][second]) submission[qi][second] = 0;
+        submission[qi][second] += 1;
+      }
+    });
+
+    db.ref("submissions/" + clientId).set(submission)
+      .then(() => {
+        localStorage.setItem(KEY_SUBMITTED, "yes");
+        alert("제출이 완료되었습니다! 참여해줘서 고마워요 :)");
+        switchView("participant");
+        resetParticipantForm();
+        refreshData(); // 사이드바 숫자 업데이트
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      });
+  }
+
+  // ===== 관리자 로그인 / 대시보드 =====
+  function checkAdmin() {
+    const pw = document.getElementById("adminPW").value;
+    if (pw === ADMIN_PASSWORD) {
+      document.getElementById("adminPW").value = "";
+      switchView("adminPanel");
+      buildGraphSelector();
+      refreshData();
+    } else {
+      alert("비밀번호가 틀렸습니다.");
+    }
+  }
+
+  function buildGraphSelector() {
+    const sel = document.getElementById("graphSelect");
+    sel.innerHTML = "";
+    QUESTIONS.forEach((q, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = `${i + 1}. ${q}`;
+      sel.appendChild(opt);
+    });
+  }
+
+  // Firebase에서 전체 제출 데이터 가져오기
+  function refreshData() {
+    db.ref("submissions").once("value").then((snapshot) => {
+      cachedSubmissions = snapshot.val() || {};
+      const count = Object.keys(cachedSubmissions).length;
+      document.getElementById("totalVotes").innerText = count;
+      document.getElementById("totalVotesAdmin").innerText = count;
+    });
+  }
+
+  // 질문별 통계 계산
+  function computeQuestionStats(questionIndex) {
+    const stats = {};
+    Object.values(cachedSubmissions).forEach(sub => {
+      const qData = sub[questionIndex];
+      if (!qData) return;
+      Object.entries(qData).forEach(([name, score]) => {
+        const norm = normalizeName(name);
+        if (!stats[norm]) stats[norm] = 0;
+        stats[norm] += score;
+      });
+    });
+    return stats;
+  }
+
+  // 전체 합산 통계
+  function computeTotalStats() {
+    const total = {};
+    Object.values(cachedSubmissions).forEach(sub => {
+      Object.values(sub).forEach(qData => {
+        Object.entries(qData).forEach(([name, score]) => {
+          const norm = normalizeName(name);
+          if (!total[norm]) total[norm] = 0;
+          total[norm] += score;
+        });
+      });
+    });
+    return total;
+  }
+
+  function showQuestionResult() {
+    const idx = Number(document.getElementById("graphSelect").value);
+    const stats = computeQuestionStats(idx);
+    const box = document.getElementById("resultBox");
+
+    if (!Object.keys(stats).length) {
+      box.textContent = `📌 ${idx + 1}. ${QUESTIONS[idx]}\n\n아직 데이터가 없습니다.`;
+      return;
+    }
+
+    const entries = Object.entries(stats).sort((a, b) => b[1] - a[1]);
+    let text = `📌 ${idx + 1}. ${QUESTIONS[idx]}\n\n`;
+
+    entries.forEach(([name, score], i) => {
+      text += `${i + 1}위 · ${name} : ${score}점\n`;
+    });
+
+    box.textContent = text;
+  }
+
+  function showTotal() {
+    const total = computeTotalStats();
+    const box = document.getElementById("resultBox");
+
+    if (!Object.keys(total).length) {
+      box.textContent = "📌 전체 합산 결과\n\n아직 데이터가 없습니다.";
+      return;
+    }
+
+    const entries = Object.entries(total).sort((a, b) => b[1] - a[1]);
+    let text = "📌 전체 합산 결과\n\n";
+
+    entries.forEach(([name, score], i) => {
+      text += `${i + 1}위 · ${name} : ${score}점\n`;
+    });
+
+    box.textContent = text;
+  }
+
+  function resetAll() {
+    if (!confirm("정말로 1반의 모든 데이터를 초기화할까요? (되돌릴 수 없습니다)")) return;
+
+    db.ref("submissions").set(null).then(() => {
+      localStorage.removeItem(KEY_CLIENT);
+      localStorage.removeItem(KEY_SUBMITTED);
+      cachedSubmissions = {};
+      document.getElementById("totalVotes").innerText = "0";
+      document.getElementById("totalVotesAdmin").innerText = "0";
+      document.getElementById("resultBox").textContent = "결과가 여기 표시됩니다.";
+      alert("1반 데이터가 모두 초기화되었습니다.");
+    });
+  }
+
+  // 초기 로드
+  window.addEventListener("DOMContentLoaded", () => {
+    buildQuestionForm();
+    switchView("participant");
+    refreshData();
+  });
+</script>
+</body>
+</html>
